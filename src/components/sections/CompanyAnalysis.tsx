@@ -15,6 +15,7 @@ import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { addToHistory } from "@/services/api";
 import AIExplanationCard from "@/components/analysis/AIExplanationCard";
+import BenefitsCard from "@/components/analysis/BenefitsCard";
 import ProLock from "@/components/common/ProLock";
 
 const CompanyAnalysis = () => {
@@ -418,6 +419,12 @@ const CompanyAnalysis = () => {
                 isLoading={isLoadingAI}
                 onGenerate={generateExplanation}
                 isPro={isPro}
+              />
+
+              {/* Benefits of Buying */}
+              <BenefitsCard
+                explanation={aiExplanation}
+                isLoading={isLoadingAI}
               />
 
               {/* Price Projection Section */}

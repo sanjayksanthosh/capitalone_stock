@@ -53,6 +53,13 @@ export interface RiskAnalysis {
 export interface AIExplanation {
   summary: string;
   details: string;
+  benefits?: string[];
+  benefits_data?: {
+    growth_percentage: string;
+    pe_valuation: string;
+    dividend_5y: string;
+    future_plans: string;
+  };
 }
 
 export interface PriceProjection {

@@ -118,7 +118,17 @@ router.post('/explain', async (req, res) => {
 
             {
                 "summary": "One concise sentence summarizing the main risk.",
-                "details": "A detailed paragraph explaining why the score is ${riskAnalysis.riskScore}, citing specific financial factors (suggested) like volatility, market conditions, or sector headwinds."
+                "details": "A detailed paragraph explaining why the score is ${riskAnalysis.riskScore}, citing specific financial factors (suggested) like volatility, market conditions, or sector headwinds.",
+                "benefits_data": {
+                    "growth_percentage": "e.g. 12% YoY Revenue Growth",
+                    "pe_valuation": "e.g. Undervalued (15x vs Sector 22x)",
+                    "dividend_5y": "e.g. Steady growth, currently 2.5% yield",
+                    "future_plans": "One sentence summary of key future initiatives (e.g. Expansion into AI markets)"
+                },
+                "benefits": [
+                    "General benefit 1",
+                    "General benefit 2"
+                ]
             }
         `;
 
@@ -136,7 +146,18 @@ router.post('/explain', async (req, res) => {
         // Return safe mock explanation instead of crash
         res.json({
             summary: "Detailed AI explanation unavailable due to rate limits.",
-            details: "The system is currently experiencing high load. Key risks likely include general market volatility and sector-specific headwinds common to this industry."
+            details: "The system is currently experiencing high load. Key risks likely include general market volatility and sector-specific headwinds common to this industry.",
+            benefits_data: {
+                "growth_percentage": "Historical avg ~10%",
+                "pe_valuation": "Market Average",
+                "dividend_5y": "Stable/None (Data unavailable)",
+                "future_plans": "Focus on core business growth and efficiency."
+            },
+            benefits: [
+                "Strong historical performance",
+                "Established market presence",
+                "Potential for long-term growth"
+            ]
         });
     }
 });
