@@ -25,7 +25,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
     const [isLoading, setIsLoading] = useState(true);
 
-    const API_URL = "http://localhost:3001/api/auth";
+    const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+    const API_URL = `${BASE_URL}/auth`;
 
     useEffect(() => {
         const initAuth = async () => {
