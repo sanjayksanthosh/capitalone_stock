@@ -8,9 +8,18 @@ const PORT = process.env.PORT || 3001;
 const mongoose = require('mongoose');
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/capital-one-app')
-  .then(() => console.log('MongoDB Connected'))
-  .catch(err => console.error('MongoDB Connection Error:', err));
+const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/capital-one-app';
+console.log('Attempting to connect to MongoDB...');
+console.log('URI used:', uri.includes('mongodb+srv') ? 'Atlas Cluster (Hidden)' : 'Localhost');
+
+mongoose.connect(uri, {
+  serverSelectionTimeoutMS: 5000 // Fail after 5 seconds if server not found
+})
+  .then(() => console.log('MongoDB Connected Successfully'))
+  .catch(err => {
+    console.error('MongoDB Connection Details:', err);
+    console.error('Connection URI was:', uri.includes('mongodb+srv') ? 'Atlas Cluster' : 'Localhost');
+  });
 
 app.use(cors());
 app.use(express.json());
