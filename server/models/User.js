@@ -26,6 +26,16 @@ const UserSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  stripeCustomerId: {
+    type: String
+  },
+  subscriptionId: {
+    type: String
+  },
+  subscriptionStatus: {
+    type: String,
+    default: 'inactive'
   }
 });
 

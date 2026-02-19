@@ -22,11 +22,19 @@ mongoose.connect(uri, {
   });
 
 app.use(cors());
-app.use(express.json());
+// Use JSON parser with raw body capture for Stripe webhooks
+app.use(express.json({
+  verify: (req, res, buf) => {
+    if (req.originalUrl.startsWith('/api/payment/webhook')) {
+      req.rawBody = buf.toString();
+    }
+  }
+}));
 
 app.use('/api', apiRoutes);
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/user', require('./routes/user'));
+app.use('/api/payment', require('./routes/payment'));
 
 app.get('/', (req, res) => {
   res.send('Capital One Backend Running');

@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/AuthContext";
-import { upgradePlan } from "@/services/api";
 import { toast } from "@/hooks/use-toast";
+import { loadStripe } from "@stripe/stripe-js";
+
+// Initialize Stripe
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const plans = [
   {
@@ -30,6 +33,7 @@ const plans = [
     ],
     cta: "Start Essential",
     variant: "calm" as const,
+    priceId: "price_1T2UZPRvBydJbMtaOEmQ5chd"
   },
   {
     id: "pro",
@@ -55,41 +59,57 @@ const plans = [
     ],
     cta: "Start Pro Trial",
     variant: "hero" as const,
+    priceId: "price_1T2UZQRvBydJbMta35YOHkRH"
   },
 ];
 
 const Pricing = () => {
-  const { user, updateUser } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
-  const handleUpgrade = async (planId: string) => {
+  const handleUpgrade = async (plan: typeof plans[0]) => {
     if (!user) {
       navigate("/signup");
       return;
     }
 
-    if (user.plan === planId) return;
+    if (user.plan === plan.id) return;
 
-    setLoadingPlan(planId);
+    setLoadingPlan(plan.id);
     try {
-      // Mock payment delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const stripe = await stripePromise;
+      if (!stripe) throw new Error("Stripe failed to load");
 
-      const result = await upgradePlan(planId);
-      if (result && result.success) {
-        updateUser(result.user);
-        toast({
-          title: "Upgrade Successful!",
-          description: `You are now on the ${planId} plan.`,
-        });
-      } else {
-        throw new Error("Upgrade failed");
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/payment/create-checkout-session`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        },
+        body: JSON.stringify({
+          priceId: plan.priceId,
+          userId: user.id,
+        }),
+      });
+
+      const session = await response.json();
+
+      if (session.error) {
+        throw new Error(session.error);
       }
-    } catch (error) {
+
+      if (session.url) {
+        window.location.href = session.url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+
+    } catch (error: any) {
+      console.error("Payment Error:", error);
       toast({
         title: "Upgrade Failed",
-        description: "Please try again later.",
+        description: error.message || "Please try again later.",
         variant: "destructive",
       });
     } finally {
@@ -188,7 +208,7 @@ const Pricing = () => {
                     variant={plan.variant}
                     size="lg"
                     className="w-full"
-                    onClick={() => handleUpgrade(plan.id)}
+                    onClick={() => handleUpgrade(plan)}
                     disabled={loadingPlan !== null || user?.plan === plan.id}
                   >
                     {loadingPlan === plan.id ? (
